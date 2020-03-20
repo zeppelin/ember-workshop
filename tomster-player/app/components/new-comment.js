@@ -1,9 +1,33 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { inject } from '@ember/service';
+import { isBlank } from '@ember/utils';
 
 export default Component.extend({
   store: inject(),
+
+  init() {
+    this._super(...arguments);
+    this.set('errors', {});
+    this.set('rating', 0);
+
+    this.set('validations', {
+      rating: {
+        validate: () => {
+          let rating = this.get('rating');
+          let isValid = rating !== 0;
+          this.set(`errors.rating`, !isValid);
+          return isValid;
+        }
+      },
+      text: {
+        validate: () => {
+        let isValid = !isBlank(this.get('text'));
+        this.set(`errors.text`, !isValid);
+        return isValid;
+      }
+    }});
+  },
 
   submitDisabled: computed('rating', 'text', function() {
     return !this.rating || !this.text;
@@ -27,14 +51,30 @@ export default Component.extend({
   actions: {
     ratingChanged(event) {
       this.set('rating', Number(event.target.value));
+      this.get('validations.rating').validate();
     },
 
     textChanged(event) {
       this.set('text', event.target.value);
+      this.get('validations.text').validate();
     },
 
     async createComment(event) {
       event.preventDefault();
+
+      let isValid = ['rating', 'text'].reduce((acc, attrName) => {
+        let isValidAttr = this.get(`validations.${attrName}`).validate(attrName);
+
+        if (acc === false) {
+          return;
+        }
+
+        return isValidAttr;
+      }, true);
+
+      if (!isValid) {
+        return;
+      }
 
       let comment = this.store.createRecord('comment', {
         album: this.album,

@@ -142,6 +142,26 @@ module('Acceptance | albums/album', function(hooks) {
 
       assert.dom('[data-test-comment]').exists({ count: 2 });
     });
+
+    test('won\'t allow commenting on an album with blank values', async function(assert) {
+      await visit('/library/1');
+
+      assert.equal(currentURL(), '/library/1');
+      assert.dom('[data-test-comment]').exists({ count: 1 });
+
+      await click('[data-test-new-comment-submit]');
+
+      assert.dom('[data-test-comment]').exists({ count: 1 });
+      assert.dom('[data-test-error-field="rating"]').hasText('You must add a rating.');
+      assert.dom('[data-test-error-field="text"]').hasText('You must add a comment.');
+
+      await fillIn('[data-test-new-comment-rating-input]', 5);
+      await fillIn('[data-test-new-comment-text-input]', 'I love this!');
+      await click('[data-test-new-comment-submit]');
+
+      assert.dom('[data-test-error-field="rating"]').doesNotExist();
+      assert.dom('[data-test-error-field="text"]').doesNotExist();
+    });
   });
 
   module('when the session is not authenticated', function(hooks) {

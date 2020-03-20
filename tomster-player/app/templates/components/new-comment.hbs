@@ -1,16 +1,50 @@
 <form onsubmit={{action "createComment"}}>
   <div class="form-group">
-    <label for="rating-select">Rating</label>
-    <select class="form-control" id="rating-select" onchange={{action "ratingChanged"}} data-test-new-comment-rating-input>
+    <label for="rating-select">
+      Rating
+    </label>
+    <select
+      class="form-control"
+      id="rating-select"
+      oninput={{action "ratingChanged"}}
+      onblur={{action "ratingChanged"}}
+      data-test-new-comment-rating-input
+    >
       <option></option>
       {{#each ratingOptions as |rating|}}
-        <option value={{rating.value}} selected={{rating.selected}}>{{rating.label}}</option>
+        <option value={{rating.value}} selected={{rating.selected}}>
+          {{rating.label}}
+        </option>
       {{/each}}
     </select>
+    {{#if this.errors.rating}}
+      <div data-test-error-field="rating">
+        You must add a rating.
+      </div>
+    {{/if}}
   </div>
   <div class="form-group">
-    <label for="text-input">Text</label>
-    <input type="text" class="form-control" id="text-input" rows="3" onkeyup={{action "textChanged"}} value={{text}} data-test-new-comment-text-input>
+    <label for="text-input">
+      Text
+    </label>
+    <input
+      type="text"
+      class="form-control"
+      id="text-input"
+      rows="3"
+      oninput={{action "textChanged"}}
+      onblur={{action "textChanged"}}
+      value={{text}}
+      data-test-new-comment-text-input
+    />
+    {{#if this.errors.text}}
+      <div data-test-error-field="text">
+        You must add a comment.
+      </div>
+    {{/if}}
   </div>
-  <button type="submit" class="btn btn-primary" disabled={{submitDisabled}} data-test-new-comment-submit>Save</button>
+  {{!-- <button type="submit" class="btn btn-primary" disabled={{submitDisabled}} data-test-new-comment-submit>Save</button> --}}
+  <button type="submit" class="btn btn-primary" data-test-new-comment-submit>
+    Save
+  </button>
 </form>
