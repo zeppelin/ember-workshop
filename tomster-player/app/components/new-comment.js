@@ -1,32 +1,25 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { inject } from '@ember/service';
-import { isBlank } from '@ember/utils';
+import Validations, { presence, nonZero } from '../utils/validations';
 
 export default Component.extend({
   store: inject(),
 
   init() {
     this._super(...arguments);
-    this.set('errors', {});
     this.set('rating', 0);
 
-    this.set('validations', {
+    this.set('validations', new Validations(this, {
       rating: {
-        validate: () => {
-          let rating = this.get('rating');
-          let isValid = rating !== 0;
-          this.set(`errors.rating`, !isValid);
-          return isValid;
-        }
+        validate: nonZero,
+        errorMessage: 'You must add a rating.'
       },
       text: {
-        validate: () => {
-        let isValid = !isBlank(this.get('text'));
-        this.set(`errors.text`, !isValid);
-        return isValid;
+        validate: presence,
+        errorMessage: 'You must add a comment.'
       }
-    }});
+    }));
   },
 
   submitDisabled: computed('rating', 'text', function() {
@@ -51,28 +44,18 @@ export default Component.extend({
   actions: {
     ratingChanged(event) {
       this.set('rating', Number(event.target.value));
-      this.get('validations.rating').validate();
+      this.validations.validate(['rating']);
     },
 
     textChanged(event) {
       this.set('text', event.target.value);
-      this.get('validations.text').validate();
+      this.validations.validate(['text']);
     },
 
     async createComment(event) {
       event.preventDefault();
 
-      let isValid = ['rating', 'text'].reduce((acc, attrName) => {
-        let isValidAttr = this.get(`validations.${attrName}`).validate(attrName);
-
-        if (acc === false) {
-          return;
-        }
-
-        return isValidAttr;
-      }, true);
-
-      if (!isValid) {
+      if (!this.validations.validate()) {
         return;
       }
 

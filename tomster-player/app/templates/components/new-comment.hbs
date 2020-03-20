@@ -17,9 +17,9 @@
         </option>
       {{/each}}
     </select>
-    {{#if this.errors.rating}}
+    {{#if this.validations.errors.rating}}
       <div data-test-error-field="rating">
-        You must add a rating.
+        {{this.validations.errors.rating}}
       </div>
     {{/if}}
   </div>
@@ -36,10 +36,10 @@
       onblur={{action "textChanged"}}
       value={{text}}
       data-test-new-comment-text-input
-    />
-    {{#if this.errors.text}}
+    >
+    {{#if this.validations.errors.text}}
       <div data-test-error-field="text">
-        You must add a comment.
+        {{this.validations.errors.text}}
       </div>
     {{/if}}
   </div>
